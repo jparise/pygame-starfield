@@ -1,0 +1,11 @@
+Title: starfield
+Author: Jon Parise (jon at csh.rit.edu)
+Submission date: May 07, 2001
+
+Description: Displays a simple moving parallax starfield.
+
+pygame version required: Any
+SDL version required: Any
+Python version required: Any
+
+Comments: See the docstrings for full help.

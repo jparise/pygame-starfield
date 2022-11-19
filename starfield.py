@@ -120,15 +120,16 @@ def main():
         # Second star field algorithms.
         if (inc % LAYER_SPEED_DIVISORS[1] == 0):
 
+            S, E = STARS_PER_LAYER[0], sum(STARS_PER_LAYER[:2])
             # Erase the second field.
-            for loop in range(*STARS_PER_LAYER[0:2]):
+            for loop in range(S, E):
                 screen.set_at(stars[loop], BLACK)
 
             # Checks to see if the second field's stars hit the screen border.
-            stars = moveStars(screen, stars, *STARS_PER_LAYER[0:2], direction)
+            stars = moveStars(screen, stars, S, E, direction)
 
             # Place second layer light gray stars.
-            for loop in range(*STARS_PER_LAYER[0:2]):
+            for loop in range(S, E):
                 screen.set_at(stars[loop], LIGHTGRAY)
 
         # Third star field algorithms.

@@ -13,6 +13,7 @@ The algorithm is based on code by Sean Bugel <bugelsea@rcn.com>.
 import random
 import pygame
 from pygame.locals import *
+from math import prod
 
 # Constants
 STARS_PER_LAYER = (20, 40, 80)
@@ -75,7 +76,7 @@ def main():
 
     # Simulation variables.
     delay = 8
-    inc = 2
+    inc = 1
     direction = LEFT
 
     # Create the starfield.
@@ -105,7 +106,9 @@ def main():
                 direction = RIGHT
 
         # Used to slow down the second and third field.
-        inc = inc + 1
+        # Make sure this variable doesn't get too large.
+        # Use divisors to prevent jitter when the modulus rolls over
+        inc = (inc + 1) % (prod(LAYER_SPEED_DIVISORS[1:]) * 100)
 
         # Erase the first star field.
         for loop in range(STARS_PER_LAYER[0]):
@@ -148,9 +151,6 @@ def main():
 
         # Control the starfield speed.
         pygame.time.delay(delay)
-
-        # Make sure this variable doesn't get too large.
-        if (inc == 500): inc = 2
 
         # Update the screen.
         pygame.display.update()

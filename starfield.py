@@ -17,6 +17,7 @@ from pygame.locals import *
 # Constants
 STARS_PER_LAYER = (20, 40, 80)
 NUM_STARS = sum(STARS_PER_LAYER)
+LAYER_SPEED_DIVISORS = (None, 2, 5)
 SCREEN_SIZE = [640, 480]
 WHITE = 255, 255, 255
 BLACK = 20, 20, 40
@@ -114,7 +115,7 @@ def main():
         stars = moveStars(screen, stars, 0, STARS_PER_LAYER[0], direction)
 
         # Second star field algorithms.
-        if (inc % 2 == 0):
+        if (inc % LAYER_SPEED_DIVISORS[1] == 0):
 
             # Erase the second field.
             for loop in range(*STARS_PER_LAYER[0:2]):
@@ -128,7 +129,7 @@ def main():
                 screen.set_at(stars[loop], LIGHTGRAY)
 
         # Third star field algorithms.
-        if (inc % 5 == 0):
+        if (inc % LAYER_SPEED_DIVISORS[2] == 0):
 
             # Erase the third field.
             for loop in range(STARS_PER_LAYER[2], NUM_STARS):

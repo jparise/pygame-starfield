@@ -16,14 +16,22 @@ from pygame.locals import *
 from math import prod
 
 # Constants
-STARS_PER_LAYER = (20, 40, 80)
+NUMBER_OF_LAYERS = 5
+STARS_PER_LAYER = (10, 30, 40, 25, 15)
 NUM_STARS = sum(STARS_PER_LAYER)
-LAYER_SPEED_DIVISORS = (None, 2, 5)
+temp = 0
+# assignment expressions (walrus operator :=) requires Python >= 3.8
+STAR_RANGES = (0, *(temp := temp + v for v in STARS_PER_LAYER))
+LAYER_SPEED_DIVISORS = (1, 2, 4, 8, 16)
 SCREEN_SIZE = [640, 480]
 WHITE = 255, 255, 255
 BLACK = 20, 20, 40
 LIGHTGRAY = 180, 180, 180
 DARKGRAY = 120, 120, 120
+BLUE_SHIFTED = 140, 140, 255
+RED_SHIFTED = 200, 40, 40
+# colors can be repeated
+LAYER_COLORS = WHITE, LIGHTGRAY, DARKGRAY, BLUE_SHIFTED, RED_SHIFTED, DARKGRAY, BLUE_SHIFTED, RED_SHIFTED
 LEFT = 0
 RIGHT = 1
 
@@ -82,12 +90,8 @@ def main():
     # Create the starfield.
     stars = initStars(screen)
 
-    # Place first layer white stars
-    for loop in range(STARS_PER_LAYER[0]):
-        screen.set_at(stars[loop], WHITE)
-
     # Main loop
-    while 1:
+    while True:
 
         # Handle input events.
         event = pygame.event.poll()
@@ -110,45 +114,26 @@ def main():
         # Use divisors to prevent jitter when the modulus rolls over
         inc = (inc + 1) % (prod(LAYER_SPEED_DIVISORS[1:]) * 100)
 
-        # Erase the first star field.
-        for loop in range(STARS_PER_LAYER[0]):
-            screen.set_at(stars[loop], BLACK)
+        # display furthest stars first so nearer stars are not obscured
+        for layer in reversed(range(NUMBER_OF_LAYERS)):
 
-        # Check if first field's stars hit the screen border.
-        stars = moveStars(screen, stars, 0, STARS_PER_LAYER[0], direction)
+            if (inc % LAYER_SPEED_DIVISORS[layer] == 0):
 
-        # Second star field algorithms.
-        if (inc % LAYER_SPEED_DIVISORS[1] == 0):
+                # Erase the star field in the current layer.
+                for loop in range(*STAR_RANGES[layer:layer + 2]):
+                    screen.set_at(stars[loop], BLACK)
+                    if layer == 0:
+                        screen.set_at((stars[loop][0] - 1, stars[loop][1]), BLACK)
 
-            S, E = STARS_PER_LAYER[0], sum(STARS_PER_LAYER[:2])
-            # Erase the second field.
-            for loop in range(S, E):
-                screen.set_at(stars[loop], BLACK)
+                # Checks to see if the field's stars hit the screen border.
+                stars = moveStars(screen, stars, *STAR_RANGES[layer: layer + 2], direction)
 
-            # Checks to see if the second field's stars hit the screen border.
-            stars = moveStars(screen, stars, S, E, direction)
-
-            # Place second layer light gray stars.
-            for loop in range(S, E):
-                screen.set_at(stars[loop], LIGHTGRAY)
-
-        # Third star field algorithms.
-        if (inc % LAYER_SPEED_DIVISORS[2] == 0):
-
-            # Erase the third field.
-            for loop in range(STARS_PER_LAYER[2], NUM_STARS):
-                screen.set_at(stars[loop], BLACK)
-
-            # Checks to see if the third field's stars hit the screen border.
-            stars = moveStars(screen, stars, STARS_PER_LAYER[2], NUM_STARS, direction)
-
-            # Place third layer dark gray stars.
-            for loop in range(STARS_PER_LAYER[2], NUM_STARS):
-                screen.set_at(stars[loop], DARKGRAY)
-
-        # Place first layer white stars.
-        for loop in range(STARS_PER_LAYER[0]):
-            screen.set_at(stars[loop], WHITE)
+                # Place current layer stars.
+                for loop in range(*STAR_RANGES[layer:layer + 2]):
+                    screen.set_at(stars[loop], LAYER_COLORS[layer])
+                    # make foreground stars larger/motion-blurred
+                    if layer == 0:
+                        screen.set_at((stars[loop][0] - 1, stars[loop][1]), LAYER_COLORS[layer])
 
         # Control the starfield speed.
         pygame.time.delay(delay)
